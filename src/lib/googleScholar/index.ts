@@ -36,12 +36,16 @@ class GoogleScholar {
    *
    * @param {string} query
    */
-  search = async (query: string): Promise<IArticle[]> => {
+  search = async (query: string, startOffset = 0): Promise<IArticle[]> => {
     let articles: IArticle[] = [];
     if (query === "") {
       throw new Error("Query cannot be empty!");
     }
-    const searchUrl = encodeURI(`/scholar?hl=en&q=${query}`);
+    let url = `/scholar?hl=en&q=${query}`;
+    if (startOffset) {
+      url += `&start=${startOffset}`;
+    }
+    const searchUrl = encodeURI(url);
     const result = await axios.get(this.baseUrl + searchUrl);
     if (result.status !== 200) {
       throw new Error(result.statusText);
