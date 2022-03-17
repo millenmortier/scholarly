@@ -26,14 +26,26 @@ const _parsePublicationTag = (
   const ellipsisIdx = authorHTMLString.indexOf("...");
   for (let idx = 0; idx < authorHTMLString.length; idx++) {
     const char = authorHTMLString[idx];
-    if (char === "," || char === "-" || idx === ellipsisIdx) {
+    if (char === ",") {
       article.authors.push(author.trim());
-      if (char !== ",") {
-        authorHTMLString = authorHTMLString.substr(
-          idx === ellipsisIdx ? idx + 3 : idx + 1
-        );
-        break;
-      }
+      // Other authors will follow
+      author = "";
+    } else if (char === "-") {
+      // Here ends the 'authors' part
+      article.authors.push(author.trim());
+      authorHTMLString = authorHTMLString.substr(
+        idx === ellipsisIdx ? idx + 3 : idx + 1
+      );
+      break;
+    } else if (idx === ellipsisIdx) {
+      // Here ends the authors part as well
+      article.authors.push(author.trim());
+      // the presence of an ellipsis is not unimportant, so we store it
+      article.authors.push("...");
+      authorHTMLString = authorHTMLString.slice(
+        idx === ellipsisIdx ? idx + 3 : idx + 1
+      );
+      break;
     } else {
       author += char;
     }
@@ -42,7 +54,7 @@ const _parsePublicationTag = (
   article.publication = splitData.pop()?.trim();
   const year = splitData.pop();
   if (year) {
-    article.year = parseInt(year.substr(-5));
+    article.year = parseInt(year.slice(-5));
   }
   return;
 };
